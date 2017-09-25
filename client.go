@@ -16,11 +16,60 @@ const (
 )
 
 type Item struct {
-	Type        ItemType
-	Description string
-	Selector    string
-	Host        string
-	Port        int
+	Type        ItemType `json:"type"`
+	Description string   `json:"description"`
+	Selector    string   `json:"selector"`
+	Host        string   `json:"host"`
+	Port        int      `json:"port"`
+}
+
+var itemTypeNames = map[ItemType]string{
+	TEXT_FILE: "TEXT_FILE",
+	DIRECTORY: "DIRECTORY",
+	INFO:      "INFO",
+}
+
+var itemTypeTypes = make(map[string]ItemType)
+
+func init() {
+	for k, v := range itemTypeNames {
+		itemTypeTypes[v] = k
+	}
+}
+
+func (item *Item) MarshalJSON() ([]byte, error) {
+	type Alias Item
+
+	typeName := itemTypeNames[item.Type]
+	if typeName == "" {
+		typeName = "UNKNOWN"
+	}
+
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		*Alias
+	}{
+		Type:  typeName,
+		Alias: (*Alias)(item),
+	})
+}
+
+func (item *Item) UnmarshalJSON(data []byte) error {
+	type Alias Item
+	aux := &struct {
+		Type string `json:"type"`
+		*Alias
+	}{
+		Alias: (*Alias)(item),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	item.Type = itemTypeTypes[aux.Type]
+
+	return nil
 }
 
 func parseItem(line string) (*Item, error) {
@@ -55,5 +104,4 @@ func parseItem(line string) (*Item, error) {
 	}
 
 	return &item, nil
-}
 }

@@ -1,23 +1,10 @@
 package gopherclient
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 )
-
-func itemTypeName(itemType ItemType) string {
-	itemTypes := map[ItemType]string{
-		TEXT_FILE: "TEXT_FILE",
-		DIRECTORY: "DIRECTORY",
-		INFO:      "INFO",
-	}
-	name, found := itemTypes[itemType]
-	if !found {
-		return "UNKNOWN"
-	} else {
-		return name
-	}
-}
 
 func checkItemType(actual ItemType, expected ItemType, t *testing.T) {
 	if actual != expected {
@@ -195,4 +182,21 @@ func TestParsePortUpToTab(t *testing.T) {
 	} else {
 		checkExpected(item.Port, port, t)
 	}
+}
+
+func TestMarshalJSONPreservesType(t *testing.T) {
+	item := Item{Type: INFO}
+
+	marshalled, err := json.Marshal(&item)
+	if err != nil {
+		t.Fatal("Unexpected error when marshalling item:", err)
+	}
+
+	result := Item{}
+	err = json.Unmarshal(marshalled, &result)
+	if err != nil {
+		t.Fatal("Unexpected error when unmarshalling item:", err)
+	}
+
+	checkItemType(result.Type, item.Type, t)
 }
