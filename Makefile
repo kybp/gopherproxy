@@ -13,15 +13,18 @@ $(SERVER_BIN): client.go main.go
 
 frontend: lint $(PUBLIC)/$(JS_BUNDLE) $(PUBLIC)/index.html
 
-$(PUBLIC)/$(JS_BUNDLE): $(FE)/node_modules $(TS_SRC)/index.tsx
+$(PUBLIC)/$(JS_BUNDLE): $(FE)/node_modules $(TS_SRC)/index.tsx\
+                        $(TS_SRC)/actions.ts $(TS_SRC)/reducers.ts\
+                        $(TS_SRC)/components/App.tsx\
+                        $(TS_SRC)/components/Directory.tsx\
+                        $(TS_SRC)/components/getStyle.ts
 	./$(FE)/node_modules/.bin/webpack \
 		--config $(FE)/webpack.config.js \
 		--context $(FE) \
 		--env.tsconfig=$(FE)/tsconfig.json \
 		--env.outDir=$(shell pwd)/public
 
-watch: backend frontend
-	./$(SERVER_BIN) & \
+watch: frontend
 	./$(FE)/node_modules/.bin/webpack --watch \
 		--config $(FE)/webpack.config.js \
 		--context $(FE) \

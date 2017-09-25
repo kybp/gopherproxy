@@ -1,26 +1,37 @@
+import { combineReducers } from 'redux'
 import { ActionTypes, TypeKeys } from './actions'
+import IItem from './item'
 
 interface IDirectoryState {
-  items: string[]
+  items: IItem[]
   loading: boolean
 }
 
 const defaultState: IDirectoryState = {
-  items: ['item 1', 'item 2', 'item 3'],
+  items: [],
   loading: false,
 }
 
 const directoryItems = (state = defaultState, action: ActionTypes) => {
   switch (action.type) {
   case TypeKeys.SET_DIRECTORY_ITEMS:
-    return { items: action.items, ...state }
+    return { ...state, items: action.items }
   case TypeKeys.START_LOADING_ITEMS:
-    return { loading: true, ...state }
+    return { ...state, loading: true }
   case TypeKeys.FINISH_LOADING_ITEMS:
-    return { loading: false, ...state }
+    return { ...state, loading: false }
   default:
     return state
   }
 }
 
-export default directoryItems
+const fontStyle = (state = 'monospaced', action: ActionTypes) => {
+  switch (action.type) {
+  case TypeKeys.TOGGLE_FONT_STYLE:
+    return state === 'monospaced' ? 'proportional' : 'monospaced'
+  default:
+    return state
+  }
+}
+
+export default combineReducers({ directoryItems, fontStyle })

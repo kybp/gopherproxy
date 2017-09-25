@@ -59,6 +59,7 @@ func getItem(
 	port string,
 	selector string,
 ) net.Conn {
+	log.Printf("Dialing %s:%s\n", host, port)
 	conn, err := net.Dial("tcp", host+":"+port)
 
 	if err != nil {
@@ -69,28 +70,6 @@ func getItem(
 
 	fmt.Fprintf(conn, "%s\r\n", selector)
 	return conn
-}
-
-func readPostBody(r *http.Request) (map[string]string, error) {
-	n := r.ContentLength
-	post := make(map[string]string)
-
-	if n > 0 {
-		buffer := make([]byte, r.ContentLength)
-		_, err := r.Body.Read(buffer)
-
-		if err != nil && err != io.EOF {
-			log.Printf("Error reading request body: %s\n", err)
-			return nil, err
-		}
-
-		if err := json.Unmarshal(buffer, &post); err != nil {
-			log.Printf("Error parsing request body: %s\n", err)
-			return nil, err
-		}
-	}
-
-	return post, nil
 }
 
 func sendTextFile(w http.ResponseWriter, host, port, selector string) {
@@ -122,33 +101,27 @@ func sendTextFile(w http.ResponseWriter, host, port, selector string) {
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	post, err := readPostBody(r)
-	if err != nil {
-		internalError(w)
-		return
-	}
-
-	host := post["host"]
+	host := r.URL.Query().Get("host")
 	if host == "" {
 		writeError(w, "must supply host", http.StatusBadRequest)
 		return
 	}
-	port := post["port"]
+	port := r.URL.Query().Get("port")
 	if port == "" {
 		port = "70"
 	}
-	selector := post["selector"]
+	selector := r.URL.Query().Get("selector")
 
 	conn := getItem(w, host, port, selector)
 	if conn == nil {
 		return
 	}
-
 	items, errors := readDirectory(conn)
 
 	if errors {
 		sendTextFile(w, host, port, selector)
 	} else {
+		log.Printf("Returning %d items\n", len(items))
 		response, err := json.Marshal(items)
 		if err != nil {
 			log.Printf("Error marshalling items: %s\n", err)
