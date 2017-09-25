@@ -1,0 +1,10 @@
+{
+  "extends": ["tslint:recommended", "tslint-react"],
+  "rules": {
+    "max-line-length":     [true, 80],
+    "semicolon":           [true, "never"],
+    "quotemark":           [true, "single", "avoid-escape", "jsx-double"],
+    "jsx-curly-spacing":   [true, "always"],
+    "jsx-no-multiline-js": [false]
+  }
+}

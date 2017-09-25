@@ -63,7 +63,7 @@ func getItem(
 
 	if err != nil {
 		writeError(w, err.Error(), http.StatusBadRequest)
-		fmt.Fprintf(w, "Error: %s\n", err)
+		log.Printf("Error: %s\n", err)
 		return nil
 	}
 
@@ -162,7 +162,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	port := ":8080"
-	http.HandleFunc("/", handler)
-	fmt.Printf("\nListening on http://127.0.0.1%s\n", port)
-	http.ListenAndServe(port, nil)
+	http.Handle("/", http.FileServer(http.Dir("public")))
+	http.HandleFunc("/api/", handler)
+	log.Printf("Listening on http://127.0.0.1%s\n", port)
+	if err := http.ListenAndServe(port, nil); err != nil {
+		log.Printf("Server stopped: %s\n", err)
+	}
 }

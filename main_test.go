@@ -6,10 +6,10 @@ import (
 	"testing"
 )
 
-func TestGetRootWithoutHostReturns400BadRequest(t *testing.T) {
-	req, err := http.NewRequest("GET", "/", nil)
+func TestGetAPIRootWithoutHostReturns400BadRequest(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/", nil)
 	if err != nil {
-		t.Fatalf("Unexpected error while requesting /: %s\n", err)
+		t.Fatalf("Unexpected error while requesting /api/: %s\n", err)
 	}
 
 	rr := httptest.NewRecorder()
@@ -19,8 +19,8 @@ func TestGetRootWithoutHostReturns400BadRequest(t *testing.T) {
 	checkExpected(rr.Code, http.StatusBadRequest, t)
 }
 
-func TestGetRootReturnsApplicationJSON(t *testing.T) {
-	req, err := http.NewRequest("GET", "/", nil)
+func TestGetAPIRootReturnsApplicationJSON(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/", nil)
 	if err != nil {
 		t.Fatalf("Unexpected error while requesting /: %s\n", err)
 	}
