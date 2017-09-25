@@ -1,6 +1,7 @@
-package gopherclient
+package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"

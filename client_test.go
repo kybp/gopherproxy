@@ -1,30 +1,10 @@
-package gopherclient
+package main
 
 import (
 	"encoding/json"
 	"fmt"
 	"testing"
 )
-
-func checkItemType(actual ItemType, expected ItemType, t *testing.T) {
-	if actual != expected {
-		t.Errorf("Expected type %d (%s) to equal %d (%s).",
-			actual, itemTypeName(actual),
-			expected, itemTypeName(expected))
-	}
-}
-
-func checkExpected(actual interface{}, expected interface{}, t *testing.T) {
-	if actual != expected {
-		t.Fatalf("Expected \"%v\" to equal \"%v\".", actual, expected)
-	}
-}
-
-func checkEmpty(actual string, t *testing.T) {
-	if actual != "" {
-		t.Fatalf("Expected \"%s\" to be empty.", actual)
-	}
-}
 
 func unexpectedParseError(err error, t *testing.T) {
 	t.Fatalf("Unexpected error while parsing item: %s", err)
