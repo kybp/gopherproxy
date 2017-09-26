@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { List, ListItem } from 'material-ui/List'
 import Description from 'material-ui/svg-icons/action/description'
+import Search from 'material-ui/svg-icons/action/search'
 import Folder from 'material-ui/svg-icons/file/folder'
 import SvgIcon from 'material-ui/SvgIcon'
 import * as React from 'react'
@@ -16,8 +17,9 @@ interface IItemProps {
 }
 
 const itemTypeToIcon = (itemType: ItemType): React.ReactElement<any> => ({
-  [ItemType.DIRECTORY]: <Folder />,
   [ItemType.TEXT_FILE]: <Description />,
+  [ItemType.DIRECTORY]: <Folder />,
+  [ItemType.SEARCH]: <Search />,
 }[itemType])
 
 const Item = ({ item, fontStyle }: { item: IItem, fontStyle: string }) => {
@@ -60,7 +62,6 @@ class Directory extends React.Component<IDirectoryProps, {}> {
   }
 
   public render() {
-
     return (
       <List>
         { this.props.items.map((item: IItem, i: number) => (

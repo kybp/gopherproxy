@@ -13,6 +13,7 @@ type ItemType byte
 const (
 	TEXT_FILE = ItemType('0')
 	DIRECTORY = ItemType('1')
+	SEARCH    = ItemType('7')
 	INFO      = ItemType('i')
 )
 
@@ -27,6 +28,7 @@ type Item struct {
 var itemTypeNames = map[ItemType]string{
 	TEXT_FILE: "TEXT_FILE",
 	DIRECTORY: "DIRECTORY",
+	SEARCH:    "SEARCH",
 	INFO:      "INFO",
 }
 

@@ -34,6 +34,15 @@ func TestParseDIRECTORYItemType(t *testing.T) {
 	}
 }
 
+func TestParseSEARCHItemType(t *testing.T) {
+	item, err := parseItem("7")
+	if err != nil {
+		unexpectedParseError(err, t)
+	} else {
+		checkItemType(item.Type, SEARCH, t)
+	}
+}
+
 func TestParseINFOItemType(t *testing.T) {
 	item, err := parseItem("i")
 	if err != nil {

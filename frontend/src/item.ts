@@ -1,7 +1,8 @@
 export enum ItemType {
   TEXT_FILE = 'TEXT_FILE',
   DIRECTORY = 'DIRECTORY',
-  INFO      = 'INFO',
+  SEARCH = 'SEARCH',
+  INFO = 'INFO',
 }
 
 interface IItem {
