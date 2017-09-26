@@ -5,7 +5,7 @@ export enum TypeKeys {
   SET_TEXT_FILE = 'SET_TEXT_FILE',
   START_LOADING_ITEMS = 'START_LOADING_ITEMS',
   FINISH_LOADING_ITEMS = 'FINISH_LOADING_ITEMS',
-  TOGGLE_FONT_STYLE = 'TOGGLE_FONT_STYLE',
+  SET_MONOSPACE = 'SET_MONOSPACE',
 }
 
 export type ActionTypes =
@@ -13,7 +13,7 @@ export type ActionTypes =
   | ISetTextFileAction
   | IStartLoadingAction
   | IFinishLoadingAction
-  | IToggleFontStyleAction
+  | ISetMonospaceAction
 
 export interface ISetDirectoryItemsAction {
   items: IItem[]
@@ -53,10 +53,12 @@ export const finishLoading = (): IFinishLoadingAction => ({
   type: TypeKeys.FINISH_LOADING_ITEMS,
 })
 
-export interface IToggleFontStyleAction {
-  type: TypeKeys.TOGGLE_FONT_STYLE,
+export interface ISetMonospaceAction {
+  monospace: boolean
+  type: TypeKeys.SET_MONOSPACE
 }
 
-export const toggleFontStyle = (): IToggleFontStyleAction => ({
-  type: TypeKeys.TOGGLE_FONT_STYLE,
+export const setMonospace = (monospace: boolean): ISetMonospaceAction => ({
+  monospace,
+  type: TypeKeys.SET_MONOSPACE,
 })

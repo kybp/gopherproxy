@@ -5,6 +5,7 @@ const monospaced = {
 
 const proportional = {
   fontFamily: ['Roboto', 'sans-serif'],
+  whiteSpace: 'pre',
 }
 
 export default (fontStyle: string): any => {
