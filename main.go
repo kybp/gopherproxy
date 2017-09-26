@@ -2,9 +2,9 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"net/http"
@@ -18,21 +18,6 @@ func writeError(w http.ResponseWriter, message string, code int) {
 
 func internalError(w http.ResponseWriter) {
 	writeError(w, "an internal error occurred", http.StatusInternalServerError)
-}
-
-func addItem(items []*Item, newItem *Item) []*Item {
-	length := len(items)
-
-	if length == cap(items) {
-		newItems := make([]*Item, (length+1)*2)
-		copy(newItems, items)
-		items = newItems
-	}
-
-	items = items[0 : length+1]
-	items[length] = newItem
-
-	return items
 }
 
 func readDirectory(conn net.Conn) ([]*Item, bool) {
@@ -49,7 +34,7 @@ func readDirectory(conn net.Conn) ([]*Item, bool) {
 			log.Printf("Error parsing item from %q: %s\n", text, err)
 			return nil, true
 		} else {
-			items = addItem(items, item)
+			items = append(items, item)
 		}
 	}
 
@@ -83,22 +68,16 @@ func sendTextFile(w http.ResponseWriter, host, port, selector string) {
 		return
 	}
 
-	buffer := make([]byte, 0x1000)
-	reader := bufio.NewReader(conn)
+	buffer := new(bytes.Buffer)
+	_, err := buffer.ReadFrom(conn)
 
-	for {
-		n, err := reader.Read(buffer)
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Printf("Error reading file: %s\n", err)
-			internalError(w)
-			return
-		}
-
-		w.Write(buffer[0:n])
+	if err != nil {
+		log.Printf("Error reading file: %s\n", err)
+		internalError(w)
+		return
 	}
+
+	buffer.WriteTo(w)
 }
 
 func sendDirectoryItems(w http.ResponseWriter, items []*Item) {
