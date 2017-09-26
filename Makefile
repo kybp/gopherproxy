@@ -14,10 +14,15 @@ $(SERVER_BIN): client.go main.go
 frontend: lint $(PUBLIC)/$(JS_BUNDLE) $(PUBLIC)/index.html
 
 $(PUBLIC)/$(JS_BUNDLE): $(FE)/node_modules $(TS_SRC)/index.tsx\
-                        $(TS_SRC)/actions.ts $(TS_SRC)/reducers.ts\
+                        $(TS_SRC)/actions.ts\
                         $(TS_SRC)/components/App.tsx\
                         $(TS_SRC)/components/Directory.tsx\
-                        $(TS_SRC)/components/getStyle.ts
+                        $(TS_SRC)/components/getStyle.ts\
+                        $(TS_SRC)/reducers/index.ts\
+                        $(TS_SRC)/reducers/currentItemType.ts\
+                        $(TS_SRC)/reducers/directoryItems.ts\
+                        $(TS_SRC)/reducers/fontStyle.ts\
+                        $(TS_SRC)/reducers/textFile.ts
 	./$(FE)/node_modules/.bin/webpack \
 		--config $(FE)/webpack.config.js \
 		--context $(FE) \

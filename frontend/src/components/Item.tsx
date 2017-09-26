@@ -5,15 +5,15 @@ import Web from 'material-ui/svg-icons/av/web'
 import Folder from 'material-ui/svg-icons/file/folder'
 import SvgIcon from 'material-ui/SvgIcon'
 import * as React from 'react'
-import IItem, { ItemType } from '../item'
+import IItem, { ItemTypes } from '../item'
 import getStyle from './getStyle'
 
-const itemTypeToIcon = (itemType: ItemType): React.ReactElement<any> => ({
-  [ItemType.TEXT_FILE]: <Description />,
-  [ItemType.DIRECTORY]: <Folder />,
-  [ItemType.SEARCH]: <Search />,
-  [ItemType.INFO]: <span />,
-  [ItemType.HTML]: <Web />,
+const itemTypeToIcon = (itemType: ItemTypes): React.ReactElement<any> => ({
+  [ItemTypes.TEXT_FILE]: <Description />,
+  [ItemTypes.DIRECTORY]: <Folder />,
+  [ItemTypes.SEARCH]: <Search />,
+  [ItemTypes.INFO]: <span />,
+  [ItemTypes.HTML]: <Web />,
 }[itemType])
 
 const Item = (
@@ -24,7 +24,7 @@ const Item = (
     primaryText={ item.description }
     leftIcon={ itemTypeToIcon(item.type) }
     style={ getStyle(fontStyle) }
-    disabled={ item.type === ItemType.INFO }
+    disabled={ item.type === ItemTypes.INFO }
     onClick={ () => onSelect(item) }
   />
 )

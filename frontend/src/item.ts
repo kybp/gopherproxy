@@ -1,4 +1,4 @@
-export enum ItemType {
+export enum ItemTypes {
   TEXT_FILE = 'TEXT_FILE',
   DIRECTORY = 'DIRECTORY',
   SEARCH = 'SEARCH',
@@ -7,7 +7,7 @@ export enum ItemType {
 }
 
 interface IItem {
-  type: ItemType
+  type: ItemTypes
   description: string
   selector: string
   host: string

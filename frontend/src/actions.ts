@@ -2,6 +2,7 @@ import IItem from './item'
 
 export enum TypeKeys {
   SET_DIRECTORY_ITEMS = 'SET_DIRECTORY_ITEMS',
+  SET_TEXT_FILE = 'SET_TEXT_FILE',
   START_LOADING_ITEMS = 'START_LOADING_ITEMS',
   FINISH_LOADING_ITEMS = 'FINISH_LOADING_ITEMS',
   TOGGLE_FONT_STYLE = 'TOGGLE_FONT_STYLE',
@@ -9,8 +10,9 @@ export enum TypeKeys {
 
 export type ActionTypes =
   | ISetDirectoryItemsAction
-  | IStartLoadingItemsAction
-  | IFinishLoadingItemsAction
+  | ISetTextFileAction
+  | IStartLoadingAction
+  | IFinishLoadingAction
   | IToggleFontStyleAction
 
 export interface ISetDirectoryItemsAction {
@@ -25,19 +27,29 @@ export const setDirectoryItems = (
   type: TypeKeys.SET_DIRECTORY_ITEMS,
 })
 
-export interface IStartLoadingItemsAction {
+export interface ISetTextFileAction {
+  body: string
+  type: TypeKeys.SET_TEXT_FILE
+}
+
+export const setTextFile = (body: string): ISetTextFileAction => ({
+  body,
+  type: TypeKeys.SET_TEXT_FILE,
+})
+
+export interface IStartLoadingAction {
   type: TypeKeys.START_LOADING_ITEMS
 }
 
-export const startLoadingItems = (): IStartLoadingItemsAction => ({
+export const startLoading = (): IStartLoadingAction => ({
   type: TypeKeys.START_LOADING_ITEMS,
 })
 
-export interface IFinishLoadingItemsAction {
+export interface IFinishLoadingAction {
   type: TypeKeys.FINISH_LOADING_ITEMS,
 }
 
-export const finishLoadingItems = (): IFinishLoadingItemsAction => ({
+export const finishLoading = (): IFinishLoadingAction => ({
   type: TypeKeys.FINISH_LOADING_ITEMS,
 })
 

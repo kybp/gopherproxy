@@ -101,6 +101,18 @@ func sendTextFile(w http.ResponseWriter, host, port, selector string) {
 	}
 }
 
+func sendDirectoryItems(w http.ResponseWriter, items []*Item) {
+	log.Printf("Returning %d items\n", len(items))
+	response, err := json.Marshal(items)
+	if err != nil {
+		log.Printf("Error marshalling items: %s\n", err)
+		internalError(w)
+		return
+	}
+
+	w.Write(response)
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -114,25 +126,27 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		port = "70"
 	}
 	selector := r.URL.Query().Get("selector")
+	itemType := r.URL.Query().Get("type")
 
 	conn := getItem(w, host, port, selector)
 	if conn == nil {
 		return
 	}
-	items, errors := readDirectory(conn)
 
-	if errors {
-		sendTextFile(w, host, port, selector)
-	} else {
-		log.Printf("Returning %d items\n", len(items))
-		response, err := json.Marshal(items)
-		if err != nil {
-			log.Printf("Error marshalling items: %s\n", err)
-			internalError(w)
-			return
+	if itemType == "" {
+		if items, errors := readDirectory(conn); !errors {
+			sendDirectoryItems(w, items)
+		} else {
+			sendTextFile(w, host, port, selector)
 		}
-
-		w.Write(response)
+	} else if itemType == "DIRECTORY" {
+		if items, errors := readDirectory(conn); !errors {
+			sendDirectoryItems(w, items)
+		} else {
+			internalError(w)
+		}
+	} else if itemType == "TEXT_FILE" {
+		sendTextFile(w, host, port, selector)
 	}
 }
 

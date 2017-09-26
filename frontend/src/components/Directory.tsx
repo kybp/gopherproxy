@@ -2,10 +2,11 @@ import axios from 'axios'
 import { List } from 'material-ui/List'
 import * as React from 'react'
 import { connect } from 'react-redux'
-import { finishLoadingItems } from '../actions'
+import { finishLoading } from '../actions'
 import { setDirectoryItems } from '../actions'
-import { startLoadingItems } from '../actions'
-import IItem, { ItemType } from '../item'
+import { setTextFile } from '../actions'
+import { startLoading } from '../actions'
+import IItem, { ItemTypes } from '../item'
 import Item from './Item'
 
 interface IDirectoryProps {
@@ -21,7 +22,7 @@ class Directory extends React.Component<IDirectoryProps, {}> {
       host: 'gopher.floodgap.com',
       port: 70,
       selector: '',
-      type: ItemType.DIRECTORY,
+      type: ItemTypes.DIRECTORY,
     })
   }
 
@@ -41,13 +42,20 @@ class Directory extends React.Component<IDirectoryProps, {}> {
   }
 
   private onSelect(item: IItem) {
-    this.props.dispatch(startLoadingItems())
+    this.props.dispatch(startLoading())
 
     axios.get(
       'http://127.0.0.1:8080/api/', { params: item },
-    ).then((items) => {
-      this.props.dispatch(finishLoadingItems())
-      this.props.dispatch(setDirectoryItems(items.data))
+    ).then(({ data }: { data: any }) => {
+      this.props.dispatch(finishLoading())
+
+      switch (item.type) {
+        case ItemTypes.DIRECTORY:
+          this.props.dispatch(setDirectoryItems(data))
+          break
+        case ItemTypes.TEXT_FILE:
+          this.props.dispatch(setTextFile(data))
+      }
     }).catch((error) => alert(error))
   }
 }
