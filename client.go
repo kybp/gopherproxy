@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -14,6 +15,7 @@ const (
 	TEXT_FILE = ItemType('0')
 	DIRECTORY = ItemType('1')
 	SEARCH    = ItemType('7')
+	HTML      = ItemType('h')
 	INFO      = ItemType('i')
 )
 
@@ -29,6 +31,7 @@ var itemTypeNames = map[ItemType]string{
 	TEXT_FILE: "TEXT_FILE",
 	DIRECTORY: "DIRECTORY",
 	SEARCH:    "SEARCH",
+	HTML:      "HTML",
 	INFO:      "INFO",
 }
 
@@ -45,6 +48,7 @@ func (item *Item) MarshalJSON() ([]byte, error) {
 
 	typeName := itemTypeNames[item.Type]
 	if typeName == "" {
+		log.Printf("Unknown item type '%c' in item %+v\n", item.Type, item)
 		typeName = "UNKNOWN"
 	}
 

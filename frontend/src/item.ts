@@ -2,6 +2,7 @@ export enum ItemType {
   TEXT_FILE = 'TEXT_FILE',
   DIRECTORY = 'DIRECTORY',
   SEARCH = 'SEARCH',
+  HTML = 'HTML',
   INFO = 'INFO',
 }
 

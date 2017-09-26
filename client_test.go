@@ -43,6 +43,15 @@ func TestParseSEARCHItemType(t *testing.T) {
 	}
 }
 
+func TestParseHTMLItemType(t *testing.T) {
+	item, err := parseItem("h")
+	if err != nil {
+		unexpectedParseError(err, t)
+	} else {
+		checkItemType(item.Type, HTML, t)
+	}
+}
+
 func TestParseINFOItemType(t *testing.T) {
 	item, err := parseItem("i")
 	if err != nil {
