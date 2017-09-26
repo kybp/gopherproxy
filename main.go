@@ -41,6 +41,9 @@ func readDirectory(conn net.Conn) ([]*Item, bool) {
 
 	for scanner.Scan() {
 		text := scanner.Text()
+		if text == "." {
+			break
+		}
 		item, err := parseItem(text)
 		if err != nil {
 			log.Printf("Error parsing item from %q: %s\n", text, err)
