@@ -14,9 +14,11 @@ class App extends React.Component<IProps, {}> {
     return (
       <div>
         <AppBar title="Gopher" />
-        { this.props.currentItemType === ItemTypes.DIRECTORY
-          ? <Directory />
-          : <TextFile /> }
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          { this.props.currentItemType === ItemTypes.DIRECTORY
+            ? <Directory />
+            : <TextFile /> }
+        </div>
       </div>
     )
   }
