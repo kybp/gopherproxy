@@ -20,8 +20,35 @@ func internalError(w http.ResponseWriter) {
 	writeError(w, "an internal error occurred", http.StatusInternalServerError)
 }
 
-func readDirectory(conn net.Conn) ([]*Item, bool) {
-	scanner := bufio.NewScanner(conn)
+func getItem(w http.ResponseWriter, host, port, selector string) *bytes.Buffer {
+	log.Printf("Dialing %s:%s\n", host, port)
+	conn, err := net.Dial("tcp", host+":"+port)
+
+	if err != nil {
+		log.Println("Error:", err)
+		writeError(w, err.Error(), http.StatusBadRequest)
+		return nil
+	}
+
+	fmt.Fprintf(conn, "%s\r\n", selector)
+
+	buffer := new(bytes.Buffer)
+	_, err = buffer.ReadFrom(conn)
+
+	if err != nil {
+		log.Println("Error reading from connection at",
+			host+":"+port,
+			fmt.Sprintf("with selector %s:", selector),
+			err)
+		internalError(w)
+		return nil
+	}
+
+	return buffer
+}
+
+func readDirectory(response []byte) ([]*Item, bool) {
+	scanner := bufio.NewScanner(bytes.NewReader(response))
 	items := make([]*Item, 0)
 
 	for scanner.Scan() {
@@ -41,55 +68,42 @@ func readDirectory(conn net.Conn) ([]*Item, bool) {
 	return items, false
 }
 
-func getItem(
-	w http.ResponseWriter,
-	host string,
-	port string,
-	selector string,
-) net.Conn {
-	log.Printf("Dialing %s:%s\n", host, port)
-	conn, err := net.Dial("tcp", host+":"+port)
+func writeDirectory(w http.ResponseWriter, items []*Item) {
+	log.Println("Returning", len(items), "items")
 
+	response, err := json.Marshal(map[string]interface{}{
+		"type":  itemTypeNames[DIRECTORY],
+		"items": items,
+	})
 	if err != nil {
-		writeError(w, err.Error(), http.StatusBadRequest)
-		log.Printf("Error: %s\n", err)
-		return nil
-	}
-
-	fmt.Fprintf(conn, "%s\r\n", selector)
-	return conn
-}
-
-func sendTextFile(w http.ResponseWriter, host, port, selector string) {
-	w.Header().Set("Content-Type", "text/plain")
-
-	conn := getItem(w, host, port, selector)
-	if conn == nil {
-		return
-	}
-
-	buffer := new(bytes.Buffer)
-	_, err := buffer.ReadFrom(conn)
-
-	if err != nil {
-		log.Printf("Error reading file: %s\n", err)
-		internalError(w)
-		return
-	}
-
-	buffer.WriteTo(w)
-}
-
-func sendDirectoryItems(w http.ResponseWriter, items []*Item) {
-	log.Printf("Returning %d items\n", len(items))
-	response, err := json.Marshal(items)
-	if err != nil {
-		log.Printf("Error marshalling items: %s\n", err)
+		log.Println("Error marshalling directory response:", err)
 		internalError(w)
 		return
 	}
 
 	w.Write(response)
+}
+
+func sendDirectoryOrError(w http.ResponseWriter, response *bytes.Buffer) {
+	if items, errors := readDirectory(response.Bytes()); !errors {
+		writeDirectory(w, items)
+	} else {
+		internalError(w)
+	}
+}
+
+func sendTextFileOrError(w http.ResponseWriter, response *bytes.Buffer) {
+	marshalled, err := json.Marshal(map[string]string{
+		"type": itemTypeNames[TEXT_FILE],
+		"body": response.String(),
+	})
+	if err != nil {
+		log.Println("Error marshalling text file response:", err)
+		internalError(w)
+		return
+	}
+
+	w.Write(marshalled)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -107,25 +121,25 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	selector := r.URL.Query().Get("selector")
 	itemType := r.URL.Query().Get("type")
 
-	conn := getItem(w, host, port, selector)
-	if conn == nil {
+	response := getItem(w, host, port, selector)
+	if response == nil {
 		return
 	}
 
 	if itemType == "" {
-		if items, errors := readDirectory(conn); !errors {
-			sendDirectoryItems(w, items)
+		// No type was given in the request, so try parsing it as a directory
+		// listing. If that fails, assume it's a text file.
+		if items, errors := readDirectory(response.Bytes()); !errors {
+			writeDirectory(w, items)
 		} else {
-			sendTextFile(w, host, port, selector)
+			sendTextFileOrError(w, response)
 		}
-	} else if itemType == "DIRECTORY" {
-		if items, errors := readDirectory(conn); !errors {
-			sendDirectoryItems(w, items)
-		} else {
-			internalError(w)
-		}
-	} else if itemType == "TEXT_FILE" {
-		sendTextFile(w, host, port, selector)
+	} else if itemType == itemTypeNames[DIRECTORY] {
+		sendDirectoryOrError(w, response)
+	} else if itemType == itemTypeNames[TEXT_FILE] {
+		sendTextFileOrError(w, response)
+	} else {
+		log.Println("Unrecognized item type requested:", itemType)
 	}
 }
 
@@ -135,6 +149,6 @@ func main() {
 	http.HandleFunc("/api/", handler)
 	log.Printf("Listening on http://127.0.0.1%s\n", port)
 	if err := http.ListenAndServe(port, nil); err != nil {
-		log.Printf("Server stopped: %s\n", err)
+		log.Println("Server stopped:", err)
 	}
 }

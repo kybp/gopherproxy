@@ -51,10 +51,10 @@ class Directory extends React.Component<IDirectoryProps, {}> {
 
       switch (item.type) {
         case ItemTypes.DIRECTORY:
-          this.props.dispatch(setDirectoryItems(data))
+          this.props.dispatch(setDirectoryItems(data.items))
           break
         case ItemTypes.TEXT_FILE:
-          this.props.dispatch(setTextFile(data))
+          this.props.dispatch(setTextFile(data.body))
       }
     }).catch((error) => alert(error))
   }
