@@ -1,4 +1,5 @@
 import AppBar from 'material-ui/AppBar'
+import Divider from 'material-ui/Divider'
 import Drawer from 'material-ui/Drawer'
 import MenuItem from 'material-ui/MenuItem'
 import Toggle from 'material-ui/Toggle'
@@ -93,6 +94,10 @@ class App extends React.Component<IProps, IState> {
               this.setState({ drawerOpen })
           } }
         >
+          <MenuItem disabled={ true }>
+            <h1>Options</h1>
+          </MenuItem>
+          <Divider />
           <MenuItem>
             <Toggle
               label="Monospace"
