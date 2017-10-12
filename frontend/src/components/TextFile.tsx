@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+import IItem from '../item'
 import getStyle from './getStyle'
 
 interface IProps {
@@ -12,10 +13,10 @@ const TextFile = ({ body, fontStyle }: IProps) => (
 )
 
 const mapStateToProps = (
-  { fontStyle, textFile }:
-  { fontStyle: string, textFile: string },
+  { fontStyle, currentItem }:
+  { fontStyle: string, currentItem: IItem },
 ): IProps => ({
-  body: textFile,
+  body: currentItem.data,
   fontStyle,
 })
 

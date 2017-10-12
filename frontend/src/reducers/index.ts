@@ -1,12 +1,6 @@
 import { combineReducers } from 'redux'
-import currentItemType from './currentItemType'
-import directoryItems from './directoryItems'
+import currentItem from './currentItem'
 import fontStyle from './fontStyle'
-import textFile from './textFile'
+import loading from './loading'
 
-export default combineReducers({
-  currentItemType,
-  directoryItems,
-  fontStyle,
-  textFile,
-})
+export default combineReducers({ currentItem, fontStyle, loading })

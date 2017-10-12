@@ -1,40 +1,27 @@
-import IItem from './item'
+import axios from 'axios'
+import IItem, { ItemTypes } from './item'
 
 export enum TypeKeys {
-  SET_DIRECTORY_ITEMS = 'SET_DIRECTORY_ITEMS',
-  SET_TEXT_FILE = 'SET_TEXT_FILE',
+  SET_CURRENT_ITEM = 'SET_CURRENT_ITEM',
   START_LOADING_ITEMS = 'START_LOADING_ITEMS',
   FINISH_LOADING_ITEMS = 'FINISH_LOADING_ITEMS',
   SET_MONOSPACE = 'SET_MONOSPACE',
 }
 
 export type ActionTypes =
-  | ISetDirectoryItemsAction
-  | ISetTextFileAction
+  | ISetCurrentItemAction
   | IStartLoadingAction
   | IFinishLoadingAction
   | ISetMonospaceAction
 
-export interface ISetDirectoryItemsAction {
-  items: IItem[]
-  type: TypeKeys.SET_DIRECTORY_ITEMS
+export interface ISetCurrentItemAction {
+  item: IItem
+  type: TypeKeys.SET_CURRENT_ITEM
 }
 
-export const setDirectoryItems = (
-  items: IItem[],
-): ISetDirectoryItemsAction => ({
-  items,
-  type: TypeKeys.SET_DIRECTORY_ITEMS,
-})
-
-export interface ISetTextFileAction {
-  body: string
-  type: TypeKeys.SET_TEXT_FILE
-}
-
-export const setTextFile = (body: string): ISetTextFileAction => ({
-  body,
-  type: TypeKeys.SET_TEXT_FILE,
+export const setCurrentItem = (item: IItem): ISetCurrentItemAction => ({
+  item,
+  type: TypeKeys.SET_CURRENT_ITEM,
 })
 
 export interface IStartLoadingAction {
@@ -62,3 +49,13 @@ export const setMonospace = (monospace: boolean): ISetMonospaceAction => ({
   monospace,
   type: TypeKeys.SET_MONOSPACE,
 })
+
+export const selectItem = (dispatch: any, item: IItem) => {
+  dispatch(startLoading())
+
+  axios.get('http://127.0.0.1:8080/api/', { params: item })
+    .then(({ data }: { data: any }) => {
+      dispatch(setCurrentItem(data as IItem))
+      dispatch(finishLoading())
+    }).catch((error) => alert(error))
+}

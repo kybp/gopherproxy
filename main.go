@@ -21,7 +21,7 @@ func internalError(w http.ResponseWriter) {
 }
 
 func getItem(w http.ResponseWriter, host, port, selector string) *bytes.Buffer {
-	log.Printf("Dialing %s:%s\n", host, port)
+	log.Printf("Dialing %s:%s for selector '%s'\n", host, port, selector)
 	conn, err := net.Dial("tcp", host+":"+port)
 
 	if err != nil {
@@ -68,12 +68,17 @@ func readDirectory(response []byte) ([]*Item, bool) {
 	return items, false
 }
 
-func writeDirectory(w http.ResponseWriter, items []*Item) {
+func writeDirectory(
+	w http.ResponseWriter, host, port, selector string, items []*Item,
+) {
 	log.Println("Returning", len(items), "items")
 
 	response, err := json.Marshal(map[string]interface{}{
-		"type":  itemTypeNames[DIRECTORY],
-		"items": items,
+		"data":     items,
+		"host":     host,
+		"port":     port,
+		"selector": selector,
+		"type":     itemTypeNames[DIRECTORY],
 	})
 	if err != nil {
 		log.Println("Error marshalling directory response:", err)
@@ -84,18 +89,25 @@ func writeDirectory(w http.ResponseWriter, items []*Item) {
 	w.Write(response)
 }
 
-func sendDirectoryOrError(w http.ResponseWriter, response *bytes.Buffer) {
+func sendDirectoryOrError(
+	w http.ResponseWriter, host, port, selector string, response *bytes.Buffer,
+) {
 	if items, errors := readDirectory(response.Bytes()); !errors {
-		writeDirectory(w, items)
+		writeDirectory(w, host, port, selector, items)
 	} else {
 		internalError(w)
 	}
 }
 
-func sendTextFileOrError(w http.ResponseWriter, response *bytes.Buffer) {
+func sendTextFileOrError(
+	w http.ResponseWriter, host, port, selector string, response *bytes.Buffer,
+) {
 	marshalled, err := json.Marshal(map[string]string{
-		"type": itemTypeNames[TEXT_FILE],
-		"body": response.String(),
+		"data":     response.String(),
+		"host":     host,
+		"port":     port,
+		"selector": selector,
+		"type":     itemTypeNames[TEXT_FILE],
 	})
 	if err != nil {
 		log.Println("Error marshalling text file response:", err)
@@ -130,14 +142,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		// No type was given in the request, so try parsing it as a directory
 		// listing. If that fails, assume it's a text file.
 		if items, errors := readDirectory(response.Bytes()); !errors {
-			writeDirectory(w, items)
+			writeDirectory(w, host, port, selector, items)
 		} else {
-			sendTextFileOrError(w, response)
+			sendTextFileOrError(w, host, port, selector, response)
 		}
 	} else if itemType == itemTypeNames[DIRECTORY] {
-		sendDirectoryOrError(w, response)
+		sendDirectoryOrError(w, host, port, selector, response)
 	} else if itemType == itemTypeNames[TEXT_FILE] {
-		sendTextFileOrError(w, response)
+		sendTextFileOrError(w, host, port, selector, response)
 	} else {
 		log.Println("Unrecognized item type requested:", itemType)
 	}

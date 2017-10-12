@@ -7,11 +7,12 @@ export enum ItemTypes {
 }
 
 interface IItem {
-  type: ItemTypes
+  data: any
   description: string
-  selector: string
   host: string
   port: number
+  selector: string
+  type: ItemTypes
 }
 
 export default IItem
