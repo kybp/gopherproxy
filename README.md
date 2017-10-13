@@ -20,7 +20,7 @@ make targets are also provided:
  * **test** - Run the test suite
  * **lint** - Lint the frontend sources (also run as part of building them)
  * **clean** - Delete all built files
- * **clean-deps** - Delete the frontend's node_modules directory
+ * **clean-deps** - Delete the frontend's `node_modules` directory
 
 ## Running
 
@@ -31,8 +31,9 @@ parameters:
 
  * **host** - The Gopher host to connect to
  * **port** - The port to make the Gopher request on (defaults to 70)
- * **selector** - The resource selector to send to the Gopher host
- * **type** - The type of the resource being requested
+ * **selector** - The resource selector to send to the Gopher host (defaults to
+   the empty string)
+ * **type** - The type of the resource being requested (explained below)
 
 All of the parameters except for `host` are optional.
 
